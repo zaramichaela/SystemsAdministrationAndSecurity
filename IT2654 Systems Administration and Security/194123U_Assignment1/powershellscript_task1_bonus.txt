@@ -1,0 +1,35 @@
+Import-Module activedirectory
+  
+$ADUsers = Import-csv C:\user.csv
+ 
+foreach ($User in $ADUsers)
+{
+	$Username  	= $User.username
+	$Password 	= $User.password
+	$Firstname 	= $User.firstname
+	$Lastname 	= $User.firstname
+	$OU 		= $User.ou
+    $telephone  = $User.telephone
+    $Password   = $User.Password
+
+	if (Get-ADUser -F {SamAccountName -eq $Username})
+	{
+		 Write-Warning "User account $Username already exists."
+	}
+	else
+	{
+		
+		New-ADUser `
+            -SamAccountName $Username `
+            -UserPrincipalName "$Username@frontier.net" `
+            -Name "$Firstname $Lastname" `
+            -GivenName $Firstname `
+            -Surname $Lastname `
+            -Enabled $True `
+            -DisplayName "$Lastname, $Firstname" `
+            -Path $OU `
+            -OfficePhone $telephone `
+            -AccountPassword (convertto-securestring $Password -AsPlainText -Force) -ChangePasswordAtLogon $True
+            
+	}
+}
